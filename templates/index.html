@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mathematics AI | Step-by-step math help</title>
+<style>
+  :root {
+    --primary: #3949ab;
+    --primary-dark: #1a237e;
+    --accent: #c5cae9;
+    --bg-top: #0a0e2e;
+    --bg-bottom: #1a237e;
+    --bubble-bot: #e8eaf6;
+    --bubble-user: #3949ab;
+    --text-dark: #1f2430;
+    --text-light: #f5f7fb;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', 'Trebuchet MS', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .app-shell {
+    width: 100%;
+    max-width: 720px;
+    height: 88vh;
+    max-height: 820px;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 22px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+  }
+
+  header.bot-header {
+    background: linear-gradient(120deg, var(--primary), var(--primary-dark));
+    color: var(--text-light);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+  }
+
+  .bot-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .bot-title h1 {
+    margin: 0;
+    font-size: 19px;
+    letter-spacing: 0.3px;
+  }
+
+  .bot-title p {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    opacity: 0.85;
+  }
+
+  .reset-btn {
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: var(--text-light);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .reset-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+  .scope-banner {
+    background: var(--accent);
+    color: var(--text-dark);
+    font-size: 12px;
+    text-align: center;
+    padding: 6px 10px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .chat-window {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .msg-row { display: flex; }
+  .msg-row.bot { justify-content: flex-start; }
+  .msg-row.user { justify-content: flex-end; }
+
+  .bubble {
+    max-width: 78%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .msg-row.bot .bubble {
+    background: var(--bubble-bot);
+    color: var(--text-dark);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg-row.user .bubble {
+    background: var(--bubble-user);
+    color: var(--text-light);
+    border-bottom-right-radius: 4px;
+  }
+
+  .typing-dots {
+    display: flex;
+    gap: 4px;
+    padding: 4px 2px;
+  }
+  .typing-dots span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary);
+    opacity: 0.6;
+    animation: bounce 1.2s infinite ease-in-out;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  form.input-bar {
+    display: flex;
+    gap: 10px;
+    padding: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  form.input-bar textarea {
+    flex: 1;
+    resize: none;
+    border: 1.5px solid #dcdfe6;
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 14.5px;
+    font-family: inherit;
+    max-height: 90px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  form.input-bar textarea:focus { border-color: var(--primary); }
+
+  form.input-bar button {
+    background: linear-gradient(120deg, var(--primary), var(--primary-dark));
+    border: none;
+    color: white;
+    border-radius: 12px;
+    padding: 0 20px;
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  form.input-bar button:hover { transform: translateY(-1px); }
+  form.input-bar button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .chat-window::-webkit-scrollbar { width: 7px; }
+  .chat-window::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    opacity: 0.4;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .app-shell { height: 94vh; border-radius: 16px; }
+    .bubble { max-width: 86%; }
+  }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="bot-header">
+      <div class="bot-icon">➗</div>
+      <div class="bot-title">
+        <h1>{{ bot_name }}</h1>
+        <p>{{ bot_subtitle }}</p>
+      </div>
+      <button class="reset-btn" id="resetBtn" type="button">Reset chat</button>
+    </header>
+    <div class="scope-banner">Specialized in mathematics: concepts, problem-solving, and step-by-step solutions — other topics are politely declined</div>
+
+    <div class="chat-window" id="chatWindow"></div>
+
+    <form class="input-bar" id="chatForm">
+      <textarea
+        id="messageInput"
+        rows="1"
+        placeholder="Type a math question or problem..."
+        required
+      ></textarea>
+      <button type="submit" id="sendBtn">Send</button>
+    </form>
+  </div>
+
+<script>
+  const chatWindow = document.getElementById("chatWindow");
+  const chatForm = document.getElementById("chatForm");
+  const messageInput = document.getElementById("messageInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  let sessionId = localStorage.getItem("mathematics_ai_session_id");
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("mathematics_ai_session_id", sessionId);
+  }
+
+  function addBubble(text, sender) {
+    const row = document.createElement("div");
+    row.className = "msg-row " + sender;
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
+    row.appendChild(bubble);
+    chatWindow.appendChild(row);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    return bubble;
+  }
+
+  function addTypingIndicator() {
+    const row = document.createElement("div");
+    row.className = "msg-row bot";
+    row.id = "typingRow";
+    const bubble = document.createElement("div");
+    bubble.className = "bubble typing-dots";
+    bubble.innerHTML = "<span></span><span></span><span></span>";
+    row.appendChild(bubble);
+    chatWindow.appendChild(row);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const row = document.getElementById("typingRow");
+    if (row) row.remove();
+  }
+
+  addBubble("{{ welcome_message }}", "bot");
+
+  chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = messageInput.value.trim();
+    if (!text) return;
+
+    addBubble(text, "user");
+    messageInput.value = "";
+    sendBtn.disabled = true;
+    addTypingIndicator();
+
+    try {
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, session_id: sessionId }),
+      });
+      const data = await res.json();
+      removeTypingIndicator();
+      addBubble(data.reply || "Sorry, I couldn't generate a reply.", "bot");
+    } catch (err) {
+      removeTypingIndicator();
+      addBubble("Network error. Please check your connection and try again.", "bot");
+    } finally {
+      sendBtn.disabled = false;
+      messageInput.focus();
+    }
+  });
+
+  messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      chatForm.requestSubmit();
+    }
+  });
+
+  resetBtn.addEventListener("click", async () => {
+    await fetch("/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId }),
+    });
+    chatWindow.innerHTML = "";
+    addBubble("{{ welcome_message }}", "bot");
+  });
+</script>
+</body>
+</html>
